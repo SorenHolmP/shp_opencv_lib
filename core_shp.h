@@ -1,5 +1,7 @@
 #include <opencv2/highgui.hpp>
 
+void dftshift(cv::Mat& mag);
+
 void compute_DFT(cv::Mat input, cv::Mat& complex_output);
 
 void get_mag_spectrum(cv::Mat complex_input, cv::Mat& mag_output, cv::Mat& phase_output);

@@ -1,7 +1,27 @@
 //03-10-2018
 
 #include <opencv2/highgui.hpp>
-#include <core.h>
+#include "core_shp.h"
+
+void dftshift(cv::Mat& mag)
+{
+    int cx = mag.cols / 2;
+    int cy = mag.rows / 2;
+
+    cv::Mat tmp;
+    cv::Mat q0(mag, cv::Rect(0, 0, cx, cy));
+    cv::Mat q1(mag, cv::Rect(cx, 0, cx, cy));
+    cv::Mat q2(mag, cv::Rect(0, cy, cx, cy));
+    cv::Mat q3(mag, cv::Rect(cx, cy, cx, cy));
+
+    q0.copyTo(tmp);
+    q3.copyTo(q0);
+    tmp.copyTo(q3);
+
+    q1.copyTo(tmp);
+    q2.copyTo(q1);
+    tmp.copyTo(q2);
+}
 
 void compute_DFT(cv::Mat input, cv::Mat& complex_output)
 {
