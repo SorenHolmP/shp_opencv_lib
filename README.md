@@ -1,4 +1,4 @@
 # shp_opencv_lib
 
 A library with help functions for open CV.
-Developed for course: Introduction to Robotics & Computervision
+Developed for course: Introduction to Robotics & Computervision at University of Southern Denmark
