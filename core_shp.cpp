@@ -62,7 +62,7 @@ void get_mag_spectrum(cv::Mat complex_input, cv::Mat& mag_output, cv::Mat& phase
 
 void get_viewable_mag_spectrum(cv::Mat mag_input, cv::Mat &mag_output) //Input raw magnitude from DFT operation
 {
-    cv::Mat mag_input_copy = mag_input;
+    cv::Mat mag_input_copy = mag_input.clone(); //Important to use clone. Otherwise pixel-pointers(?) are shared.
     dftshift(mag_input_copy);
     mag_input_copy += cv::Scalar::all(1);
     cv::log(mag_input_copy, mag_input_copy);
