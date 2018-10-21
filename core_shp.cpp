@@ -28,7 +28,7 @@ void compute_DFT(cv::Mat input, cv::Mat& complex_output, bool pad)
 {
     cv::Mat planes[] = { cv::Mat_<float>(input), cv::Mat_<float>::zeros(input.size()) };
 
-    //Outcomment from here------------
+    //Outcomment from here to get padding------------
 //    cv::Mat padded;
 //    int opt_rows = cv::getOptimalDFTSize(input.rows * 2 - 1);
 //    int opt_cols = cv::getOptimalDFTSize(input.cols * 2 - 1);
@@ -93,59 +93,3 @@ void restore_image_from_mag_and_phase(cv::Mat mag, cv::Mat phase, cv::Mat &outpu
 
     restore_image_from_complex_coeffs(complex, output);
 }
-
-
-//Should perhaps be moved to separate filter source code file...
-//But for now it resides here.
-
-void notch_filter(cv::Mat mag_input, cv::Mat &mag_output, std::vector<notch> notches)
-{
-    int M = mag_input.rows;
-    int N = mag_input.cols;
-
-    cv::Mat mag_input_copy = mag_input.clone();
-
-
-    double Dk, Dmk, D0, Hk, Hmk;
-    int uk, vk, n;
-
-    std::vector<cv::Mat> H_NR_list;
-
-    for(int i = 0; i < notches.size(); i++)
-    {
-        D0 = notches[i]._cf;
-        uk = notches[i]._u;
-        vk = notches[i]._v;
-        n  = notches[i]._order;
-        cv::Mat H_NR = mag_input.clone(); //To get proper size and type
-
-        for(int u = 0; u < M; u++)
-        {
-
-            for(int v = 0; v < N; v++)
-            {
-                Dk = sqrt(pow(u - M/2 - uk, 2) + pow(v - N/2 - vk, 2));
-                Dmk = sqrt(pow(u - M/2 + uk, 2) + pow(v - N/2 + vk, 2));
-
-                Hk = 1. / (1 + pow(D0 / Dk, 2 * n));
-                Hmk = 1. / (1 + pow(D0 / Dmk, 2 * n));
-
-                H_NR.at<float>(u,v) = Hk * Hmk;
-            }
-        }
-        H_NR_list.push_back(H_NR);
-    }
-
-    //Multiply together all the individual notch filters:
-    cv::Mat new_HNR;
-    new_HNR = H_NR_list[0];
-    for(int i = 1; i < H_NR_list.size(); i++)
-        new_HNR = new_HNR.mul(H_NR_list[i]);
-
-
-    //Apply filter
-    dftshift(mag_input_copy);
-    mag_output = new_HNR.mul(mag_input_copy);
-    dftshift(mag_output);
-}
-
